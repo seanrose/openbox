@@ -1,0 +1,20 @@
+{
+    "files": [
+        {
+            "description": "Get Information About a File",
+            "http_method": "GET",
+            "resoure_url": "/{id}",
+            "url_params": null,
+            "body_attributes": null,
+            "headers": null
+        }
+    ],
+    "folders": [],
+    "comments": [],
+    "discussions": [],
+    "collaborations": [],
+    "users": [],
+    "search": [],
+    "shared_items": [],
+    "events": []
+}
