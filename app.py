@@ -4,7 +4,8 @@ import simplejson as json
 
 from flask import Flask, request, render_template
 from flask.ext.wtf import Form
-from settings import SECRET_KEY
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 app = Flask(__name__)
 
