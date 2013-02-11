@@ -11,20 +11,18 @@
 #top-link  { display:none; position:fixed; right:14px; bottom:5px; }
 
 </style>
-
-
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 <script type="text/javascript" src="{{ url_for('static', filename="prettify.js") }}"></script>
 <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 <script src="{{ url_for('static', filename='jquery.scrollTo-1.4.3.1-min.js') }}"></script>
-<script src="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
-"use strict";
 
 var CLIENT_ID = "hkwgxjpczwuakujrqcz4wh5e9kgre63i";
 var CLIENT_SECRET = "vFyn8qsSIWdOhDnzbg57OqdA9lZTYjiT";
 
 function readFormValuesIntoAssArray() {
+    "use strict";
+
     var inputs = $('#api-call :input');
     var values = {};
 
@@ -36,6 +34,8 @@ function readFormValuesIntoAssArray() {
 }
 
 function getParameterByName(name) {
+    "use strict";
+
     name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
     var regexS = "[\\?&]" + name + "=([^&#]*)";
     var regex = new RegExp(regexS);
@@ -48,12 +48,14 @@ function getParameterByName(name) {
 }
 
 function getOauth2Tokens() {
+    "use strict";
+
     var auth_code = getParameterByName("code");
 
     $.ajax({
         type: "POST",
         url: "https://api.box.com/oauth2/token",
-        data : "grant_type=authorization_code&code=" + auth_code + "&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET,
+        data: "grant_type=authorization_code&code=" + auth_code + "&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET,
         dataType: "json",
         cache: false,
         complete: function (data) {
@@ -67,9 +69,42 @@ function getOauth2Tokens() {
 }
 
 function redirectToBoxIfNoAuth() {
+    "use strict";
+
     if (getParameterByName("code") === "") {
         window.location.replace("https://api.box.com/oauth2/authorize?response_type=code&client_id=hkwgxjpczwuakujrqcz4wh5e9kgre63i");
     }
+}
+
+function makeApiCall() {
+    "use strict";
+
+    var formElements = readFormValuesIntoAssArray();
+    var boxApiUrl = "https://api.box.com/2.0";
+
+    $.ajax({
+        type: formElements.method,
+        url: boxApiUrl + formElements.url,
+        data: formElements.body,
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + $("#access").text()
+        },
+        cache: false,
+        complete: function (data) {
+
+            if (data.status === 401) {
+                $("#response").text("Unauthorized");
+                $("#http-cat").attr("src", "http://httpcats.herokuapp.com/" + data.status);
+            } else {
+                var formattedResponseJson = JSON.stringify($.parseJSON(data.responseText), null, '\t');
+                $("#response").text(formattedResponseJson);
+                $("#response_headers").text(data.getAllResponseHeaders());
+                prettyPrint();
+                $("#http-cat").attr("src", "http://httpcats.herokuapp.com/" + data.status);
+            }
+        }
+    });
 }
 
 $(document).ready(function () {
@@ -86,27 +121,6 @@ $(document).ready(function () {
 
 });
 
-function makeApiCall() {
-    var formElements = readFormValuesIntoAssArray();
-    var boxApiUrl = "https://api.box.com/2.0";
-
-    $.ajax({
-        type: formElements.method,
-        url: boxApiUrl + formElements.url,
-        data : formElements.body,
-        dataType: "json",
-        headers: {"Authorization": "Bearer " + $("#access").text()},
-        cache: false,
-        complete: function (data) {
-            var formattedResponseJson = JSON.stringify($.parseJSON(data.responseText), null, '\t');
-            $("#response").text(formattedResponseJson);
-            $("#response_headers").text(data.getAllResponseHeaders());
-            prettyPrint();
-            $("#http-cat").attr("src", "http://httpcats.herokuapp.com/" + data.status);
-        }
-    });
-}
-
 $(document).delegate('#json_body', 'keydown', function (e) {
     var keyCode = e.keyCode || e.which;
 
@@ -116,59 +130,53 @@ $(document).delegate('#json_body', 'keydown', function (e) {
         var end = $(this).get(0).selectionEnd;
 
         // set textarea value to: text before caret + tab + text after caret
-        $(this).val($(this).val().substring(0, start)
-                + "\t"
-                + $(this).val().substring(end));
+        $(this).val($(this).val().substring(0, start) + "\t" + $(this).val().substring(end));
 
         // put caret at right position again
-        $(this).get(0).selectionStart =
-        $(this).get(0).selectionEnd = start + 1;
+        $(this).get(0).selectionStart = $(this).get(0).selectionEnd = start + 1;
     }
 });
 
 //plugin
-$.fn.topLink = function(settings) {
+$.fn.topLink = function (settings) {
     settings = $.extend({
-      min: 1,
-      fadeSpeed: 200,
-      ieOffset: 50
+        min: 1,
+        fadeSpeed: 200,
+        ieOffset: 50
     }, settings);
-    return this.each(function() {
-      //listen for scroll
-      var el = $(this);
-      el.css('display','none'); //in case the user forgot
-      $(window).scroll(function() {
-        //stupid IE hack
-        if(!$.support.hrefNormalized) {
-          el.css({
-            'position': 'absolute',
-            'top': $(window).scrollTop() + $(window).height() - settings.ieOffset
-          });
-        }
-        if($(window).scrollTop() >= settings.min)
-        {
-          el.fadeIn(settings.fadeSpeed);
-        }
-        else
-        {
-          el.fadeOut(settings.fadeSpeed);
-        }
-      });
+    return this.each(function () {
+        //listen for scroll
+        var el = $(this);
+        el.css('display', 'none'); //in case the user forgot
+        $(window).scroll(function () {
+            //stupid IE hack
+            if (!$.support.hrefNormalized) {
+                el.css({
+                    'position': 'absolute',
+                    'top': $(window).scrollTop() + $(window).height() - settings.ieOffset
+                });
+            }
+            if ($(window).scrollTop() >= settings.min) {
+                el.fadeIn(settings.fadeSpeed);
+            } else {
+                el.fadeOut(settings.fadeSpeed);
+            }
+        });
     });
-  };
+};
 
 //usage w/ smoothscroll
-$(document).ready(function() {
-  //set the link
-  $('#top-link').topLink({
-    min: 400,
-    fadeSpeed: 500
-  });
-  //smoothscroll
-  $('#top-link').click(function(e) {
-    e.preventDefault();
-    $.scrollTo(0,300);
-  });
+$(document).ready(function () {
+    //set the link
+    $('#top-link').topLink({
+        min: 400,
+        fadeSpeed: 500
+    });
+    //smoothscroll
+    $('#top-link').click(function (e) {
+        e.preventDefault();
+        $.scrollTo(0, 300);
+    });
 });
 </script>
 </head>
