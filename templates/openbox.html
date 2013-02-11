@@ -1,6 +1,7 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
+<meta charset='UTF-8'>
 <title>Open Box</title>
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap-responsive.min.css') }}">
@@ -20,94 +21,97 @@
 var CLIENT_ID = "hkwgxjpczwuakujrqcz4wh5e9kgre63i";
 var CLIENT_SECRET = "vFyn8qsSIWdOhDnzbg57OqdA9lZTYjiT";
 
-function readFormValuesIntoAssArray() {
-    "use strict";
+$(document).ready(function () {
 
-    var inputs = $('#api-call :input');
-    var values = {};
+    function readFormValuesIntoAssArray() {
+        "use strict";
 
-    $.each($('#api-call').serializeArray(), function (i, field) {
-        values[field.name] = field.value;
-    });
+        var inputs = $('#api-call :input');
+        var values = {};
 
-    return values;
-}
+        $.each($('#api-call').serializeArray(), function (i, field) {
+            values[field.name] = field.value;
+        });
 
-function getParameterByName(name) {
-    "use strict";
-
-    name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-    var regexS = "[\\?&]" + name + "=([^&#]*)";
-    var regex = new RegExp(regexS);
-    var results = regex.exec(window.location.search);
-    if (results === null) {
-        return "";
-    } else {
-        return decodeURIComponent(results[1].replace(/\+/g, " "));
+        return values;
     }
-}
 
-function getOauth2Tokens() {
-    "use strict";
+    function getParameterByName(name) {
+        "use strict";
 
-    var auth_code = getParameterByName("code");
-
-    $.ajax({
-        type: "POST",
-        url: "https://api.box.com/oauth2/token",
-        data: "grant_type=authorization_code&code=" + auth_code + "&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET,
-        dataType: "json",
-        cache: false,
-        complete: function (data) {
-
-            var responseJson = $.parseJSON(data.responseText);
-
-            $("#access").text("Access: " + responseJson.access_token);
-            $("#refresh").text("Bearer: " + responseJson.refresh_token);
+        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regexS = "[\\?&]" + name + "=([^&#]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.search);
+        if (results === null) {
+            return "";
+        } else {
+            return decodeURIComponent(results[1].replace(/\+/g, " "));
         }
-    });
-}
-
-function redirectToBoxIfNoAuth() {
-    "use strict";
-
-    if (getParameterByName("code") === "") {
-        window.location.replace("https://api.box.com/oauth2/authorize?response_type=code&client_id=hkwgxjpczwuakujrqcz4wh5e9kgre63i");
     }
-}
 
-function makeApiCall() {
-    "use strict";
+    function getOauth2Tokens() {
+        "use strict";
 
-    var formElements = readFormValuesIntoAssArray();
-    var boxApiUrl = "https://api.box.com/2.0";
+        var auth_code = getParameterByName("code");
 
-    $.ajax({
-        type: formElements.method,
-        url: boxApiUrl + formElements.url,
-        data: formElements.body,
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + $("#access").text()
-        },
-        cache: false,
-        complete: function (data) {
+        $.ajax({
+            type: "POST",
+            url: "https://api.box.com/oauth2/token",
+            data: "grant_type=authorization_code&code=" + auth_code + "&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET,
+            dataType: "json",
+            cache: false,
+            success: function (data) {
 
-            if (data.status === 401) {
-                $("#response").text("Unauthorized");
-                $("#http-cat").attr("src", "http://httpcats.herokuapp.com/" + data.status);
-            } else {
+                var responseJson = $.parseJSON(data.responseText);
+
+                $("#access").text("Access: " + responseJson.access_token);
+                $("#refresh").text("Bearer: " + responseJson.refresh_token);
+            }
+        });
+    }
+
+    function redirectToBoxIfNoAuth() {
+        "use strict";
+
+        if (getParameterByName("code") === "") {
+            window.location.replace("https://api.box.com/oauth2/authorize?response_type=code&client_id=hkwgxjpczwuakujrqcz4wh5e9kgre63i");
+        }
+    }
+
+    function makeApiCall() {
+        "use strict";
+
+        $("#submit").button('loading');
+
+        var formElements = readFormValuesIntoAssArray();
+        var boxApiUrl = "https://api.box.com/2.0";
+
+        $.ajax({
+            type: formElements.method,
+            url: boxApiUrl + formElements.url,
+            data: formElements.body,
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + $("#access").text()
+            },
+            cache: false,
+            statusCode: {
+                401: function() {
+                    $("#response").text("Unauthorized");
+                    $("#http-cat").attr("src", "http://httpcats.herokuapp.com/" + "401  ");
+                }
+            },
+            complete: function (data) {
                 var formattedResponseJson = JSON.stringify($.parseJSON(data.responseText), null, '\t');
                 $("#response").text(formattedResponseJson);
+                $("#submit").button('reset');
                 $("#response_headers").text(data.getAllResponseHeaders());
                 prettyPrint();
                 $("#http-cat").attr("src", "http://httpcats.herokuapp.com/" + data.status);
             }
-        }
-    });
-}
-
-$(document).ready(function () {
+        });
+    }
 
     redirectToBoxIfNoAuth();
 
@@ -117,6 +121,17 @@ $(document).ready(function () {
         e.preventDefault();
         makeApiCall();
         return false;
+    });
+
+    //set the link
+    $('#top-link').topLink({
+        min: 400,
+        fadeSpeed: 500
+    });
+    //smoothscroll
+    $('#top-link').click(function (e) {
+        e.preventDefault();
+        $.scrollTo(0, 300);
     });
 
 });
@@ -164,20 +179,6 @@ $.fn.topLink = function (settings) {
         });
     });
 };
-
-//usage w/ smoothscroll
-$(document).ready(function () {
-    //set the link
-    $('#top-link').topLink({
-        min: 400,
-        fadeSpeed: 500
-    });
-    //smoothscroll
-    $('#top-link').click(function (e) {
-        e.preventDefault();
-        $.scrollTo(0, 300);
-    });
-});
 </script>
 </head>
 <body>
@@ -195,7 +196,7 @@ $(document).ready(function () {
     </div>
     <div class="row-fluid">
         <fieldset>
-            <form class="form span12" id="api-call" action="#" method="POST">
+            <form class="form span12" id="api-call" action="#" method="">
                     <div class="row-fluid">
                         <div class="span12">
                             <select class="span2" id="method" name="method">
@@ -217,7 +218,7 @@ $(document).ready(function () {
                         </div>
                     </div>
                     <div class="row-fluid">
-                        <button type="submit" class="btn btn-success btn-large btn-block">Make API Call <i class="icon-arrow-right icon-white"></i></button>
+                        <button id="submit" type="submit" class="btn btn-success btn-large btn-block">Make API Call <i class="icon-arrow-right icon-white"></i></button>
                     </div>
               </fieldset>
             </form>
