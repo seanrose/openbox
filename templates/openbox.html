@@ -21,27 +21,96 @@
 <script>
     "use strict";
 
+    var CLIENT_ID = "hkwgxjpczwuakujrqcz4wh5e9kgre63i";
+    var CLIENT_SECRET = "vFyn8qsSIWdOhDnzbg57OqdA9lZTYjiT";
+
     $(document).ready(function () {
+
+        redirectToBoxIfNoAuth();
+
+        getOauth2Tokens();
+
         $("#api-call").submit(function (e) {
             e.preventDefault();
-            $.ajax({
-                type: "POST",
-                url: "make-api-call",
-                data : $(this).serialize(),
-                dataType: "json",
-                cache: false,
-                complete: function (data) {
-                    var response = $.parseJSON(data.responseText);
-                    $("#response").text(response["json"]);
-                    $("#response_headers").text(response["headers"]);
-                    prettyPrint();
-                    $("#http-cat").attr("src","http://httpcats.herokuapp.com/" + response["status"]);
-                }
-            })
+            makeApiCall();
             return false;
         });
 
     });
+
+    function makeApiCall()
+    {
+        var formElements = readFormValuesIntoAssArray();
+        var boxApiUrl = "https://api.box.com/2.0"
+
+        $.ajax({
+            type: formElements["method"],
+            url: boxApiUrl + formElements["url"],
+            data : formElements["body"],
+            dataType: "json",
+            headers: {"Authorization": "Bearer " + $("#access").text()},
+            cache: false,
+            complete: function (data) {
+                var responseJson = $.parseJSON(data.responseText);
+                var formattedResponseJson = JSON.stringify(responseJson, null, '\t');
+                $("#response").text(formattedResponseJson);
+                $("#response_headers").text(data.getAllResponseHeaders());
+                prettyPrint();
+                $("#http-cat").attr("src","http://httpcats.herokuapp.com/" + data.status);
+            }
+        })
+    }
+
+    function readFormValuesIntoAssArray()
+    {
+        var inputs = $('#api-call :input');
+        var values = {};
+
+        $.each($('#api-call').serializeArray(), function(i, field) {
+            values[field.name] = field.value;
+        });
+
+        return values;
+    }
+
+    function getParameterByName(name)
+    {
+      name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+      var regexS = "[\\?&]" + name + "=([^&#]*)";
+      var regex = new RegExp(regexS);
+      var results = regex.exec(window.location.search);
+      if(results == null)
+        return "";
+      else
+        return decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+
+    function getOauth2Tokens()
+    {
+        var auth_code = getParameterByName("code");
+
+        $.ajax({
+            type: "POST",
+            url: "https://api.box.com/oauth2/token",
+            data : "grant_type=authorization_code&code=" + auth_code + "&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET,
+            dataType: "json",
+            cache: false,
+            complete: function (data) {
+
+                responseJson = $.parseJSON(data.responseText);
+
+                $("#access").text("Access: " + responseJson["access_token"]);
+                $("#refresh").text("Bearer: " + responseJson["refresh_token"]);
+            }
+        })
+    }
+
+    function redirectToBoxIfNoAuth()
+    {
+        if (getParameterByName("code") === "") {
+            window.location.replace("https://api.box.com/oauth2/authorize?response_type=code&client_id=hkwgxjpczwuakujrqcz4wh5e9kgre63i");
+        }
+    }
 
     $(document).delegate('#json_body', 'keydown', function(e) {
       var keyCode = e.keyCode || e.which;
@@ -112,12 +181,18 @@
 <div class="container-fluid">
     <div class="navbar">
       <div class="navbar-inner">
-        <a class="brand" href="#">Box API Console</a>
+        <a class="brand" href="#">Open Box</a>
+        <ul class="nav">
+            <li><a href="#">Access Token:</a></li>
+            <li><a id="access" href="#"></a></li>
+            <li><a href="#">Refresh Token:</a></li>
+            <li><a id="refresh" href="#"></a></li>
+        </ul>
       </div>
     </div>
     <div class="row-fluid">
         <fieldset>
-            <form class="form span12" id="api-call" action="make-api-call" method="POST">
+            <form class="form span12" id="api-call" action="#" method="POST">
                 {{ form.csrf_token }}
                     <div class="row-fluid">
                         <div class="span12">
@@ -130,9 +205,8 @@
                             </select>
                             <div class="input-prepend">
                                 <span class="add-on">https://api.box.com/2.0</span>
-                                <input class="input-xlarge" id="url" name="url" type="text" placeholder="/folders/0">
+                                <input class="input-xxlarge" id="url" name="url" type="text" placeholder="/folders/0">
                             </div>
-                            <input class="input pull-right span3" type="text" name="access_token" id="access_token" placeholder="Access Token">
                         </div>
                     </div>
                     <div class="row-fluid">
@@ -151,6 +225,7 @@
                 <ul class="nav nav-tabs" id="output">
                     <li class="active"><a href="#json" data-toggle="tab">JSON</a></li>
                     <li><a href="#headers" data-toggle="tab">Headers</a></li>
+                    <li><a href="#http-cat-status" data-toggle="tab">HTTP Cat</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="json">
@@ -159,14 +234,13 @@
                     <div class="tab-pane" id="headers">
                         <pre id="response_headers" class="prettyprint lang-javascript pre-scrollable"></pre>
                     </div>
+                    <div class="tab-pane" id="http-cat-status">
+                        <div class="span10">
+                            <img id="http-cat" src="" class="img-rounded">
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    </div>
-    <div class="row-fluid">
-        <div class="span10">
-            <img id="http-cat" src="" class="img-rounded">
         </div>
     </div>
 </div>
