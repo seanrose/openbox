@@ -188,7 +188,6 @@ $(document).ready(function() {
     <div class="row-fluid">
         <fieldset>
             <form class="form span12" id="api-call" action="#" method="POST">
-                {{ form.csrf_token }}
                     <div class="row-fluid">
                         <div class="span12">
                             <select class="span2" id="method" name="method">
@@ -208,6 +207,7 @@ $(document).ready(function() {
                         <div class="span12">
                         <textarea id="json_body" rows="6" class="input-block-level" id="body" name="body" placeholder="JSON Body"></textarea>
                         </div>
+                    </div>
                     <div class="row-fluid">
                         <button type="submit" class="btn btn-success btn-large btn-block">Make API Call <i class="icon-arrow-right icon-white"></i></button>
                     </div>
