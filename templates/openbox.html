@@ -16,6 +16,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename="prettify.js") }}"></script>
 <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 <script src="{{ url_for('static', filename='jquery.scrollTo-1.4.3.1-min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='ZeroClipboard.min.js') }}"></script>
 <script>
 
 
@@ -51,7 +52,9 @@ $(document).ready(function () {
     function setOauth2Tokens() {
         "use strict";
 
-        $("#access").text(getParameterByName("access_token")).attr("data-refresh", getParameterByName("refresh_token"));
+        var access_token = getParameterByName("access_token");
+
+        $("#access").text(access_token).attr("data-refresh", getParameterByName("refresh_token"));
     }
 
     function makeApiCall() {
@@ -173,6 +176,10 @@ $.fn.topLink = function (settings) {
         <ul class="nav">
             <li><a href="#">Access Token:</a></li>
             <li><a data-refresh="" id="access" href="#"></a></li>
+        </ul>
+        <ul class="nav pull-right">
+            <li class="divider-vertical"></li>
+            <li><a href="http://developers.box.com/docs/" target="_blank"><i class="icon-book"></i> Docs</a></li>
         </ul>
       </div>
     </div>
