@@ -48,31 +48,17 @@ $(document).ready(function () {
         }
     }
 
-    function getOauth2Tokens() {
+    function setOauth2Tokens() {
         "use strict";
 
-        var auth_code = getParameterByName("code");
-
-        $.ajax({
-            type: "POST",
-            url: "https://api.box.com/oauth2/token",
-            data: "grant_type=authorization_code&code=" + auth_code + "&client_id=" + CLIENT_ID + "&client_secret=" + CLIENT_SECRET,
-            dataType: "json",
-            cache: false,
-            success: function (data) {
-
-                var responseJson = $.parseJSON(data.responseText);
-
-                $("#access").text("Access: " + responseJson.access_token);
-                $("#refresh").text("Bearer: " + responseJson.refresh_token);
-            }
-        });
+        $("#access").text("Access: " + getParameterByName("access_token"));
+        $("#refresh").text("Bearer: " + getParameterByName("refresh_token"));
     }
 
     function redirectToBoxIfNoAuth() {
         "use strict";
 
-        if (getParameterByName("code") === "") {
+        if (getParameterByName("access_token") === "") {
             window.location.replace("https://api.box.com/oauth2/authorize?response_type=code&client_id=hkwgxjpczwuakujrqcz4wh5e9kgre63i");
         }
     }
@@ -118,8 +104,8 @@ $(document).ready(function () {
                  "folders/ID/items", "folders/trash/items", "users/me"]
     });
 
-    // redirectToBoxIfNoAuth();
-    getOauth2Tokens();
+    redirectToBoxIfNoAuth();
+    setOauth2Tokens();
 
     $("#api-call").submit(function (e) {
         e.preventDefault();
