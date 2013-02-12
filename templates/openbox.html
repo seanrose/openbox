@@ -51,8 +51,8 @@ $(document).ready(function () {
     function setOauth2Tokens() {
         "use strict";
 
-        $("#access").text("Access: " + getParameterByName("access_token"));
-        $("#refresh").text("Bearer: " + getParameterByName("refresh_token"));
+        $("#access").text(getParameterByName("access_token"));
+        $("#refresh").text(getParameterByName("refresh_token"));
     }
 
     function redirectToBoxIfNoAuth() {
