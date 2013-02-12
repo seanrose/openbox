@@ -31,9 +31,9 @@ def box_auth():
 
     resp_json = resp.json()
 
-    return redirect(url_for('openbox'),
-                    access_token=resp_json.get('access_token'),
-                    refresh_token=resp_json.get('refresh_token'))
+    return redirect(url_for('openbox',
+                            access_token=resp_json.get('access_token'),
+                            refresh_token=resp_json.get('refresh_token')))
 
 
 if __name__ == '__main__':
