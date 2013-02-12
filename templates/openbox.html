@@ -18,8 +18,6 @@
 <script src="{{ url_for('static', filename='jquery.scrollTo-1.4.3.1-min.js') }}"></script>
 <script>
 
-var CLIENT_ID = "hkwgxjpczwuakujrqcz4wh5e9kgre63i";
-var CLIENT_SECRET = "vFyn8qsSIWdOhDnzbg57OqdA9lZTYjiT";
 
 $(document).ready(function () {
 
@@ -85,7 +83,7 @@ $(document).ready(function () {
         $("#submit").button('loading');
 
         var formElements = readFormValuesIntoAssArray();
-        var boxApiUrl = "https://api.box.com/2.0";
+        var boxApiUrl = "https://api.box.com/2.0/";
 
         $.ajax({
             type: formElements.method,
@@ -113,8 +111,14 @@ $(document).ready(function () {
         });
     }
 
-    redirectToBoxIfNoAuth();
 
+    $("#url").typeahead({
+        source: ["folders", "files", "collaborations", "discussions", "comments", "events", "users", "search", "shared_items",
+                 "folders/ID", "files/ID", "collaborations/ID", "discussions/ID", "comments/ID", "events", "users/ID",
+                 "folders/ID/items", "folders/trash/items", "users/me"]
+    });
+
+    // redirectToBoxIfNoAuth();
     getOauth2Tokens();
 
     $("#api-call").submit(function (e) {
@@ -207,8 +211,8 @@ $.fn.topLink = function (settings) {
                                 <option>OPTIONS</option>
                             </select>
                             <div class="input-prepend">
-                                <span class="add-on">https://api.box.com/2.0</span>
-                                <input class="input-xxlarge" id="url" name="url" type="text" placeholder="/folders/0">
+                                <span class="add-on">https://api.box.com/2.0/</span>
+                                <input class="input-xxlarge" id="url" name="url" type="text" data-provide="typeahead" autocomplete="off" placeholder="folders/0">
                             </div>
                         </div>
                     </div>
