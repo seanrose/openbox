@@ -78,7 +78,11 @@ $(document).ready(function () {
                 }
             },
             complete: function (data) {
-                var formattedResponseJson = JSON.stringify($.parseJSON(data.responseText), null, '\t');
+                if (data.responseText !== "") {
+                    var formattedResponseJson = JSON.stringify($.parseJSON(data.responseText), null, '\t');
+                } else {
+                    var formattedResponseJson = "Empty Response";
+                }
                 $("#response").text(formattedResponseJson);
                 $("#submit").button('reset');
                 $("#response_headers").text(data.getAllResponseHeaders());
@@ -92,7 +96,7 @@ $(document).ready(function () {
     $("#url").typeahead({
         source: ["folders", "files", "collaborations", "discussions", "comments", "events", "users", "search", "shared_items",
                  "folders/ID", "files/ID", "collaborations/ID", "discussions/ID", "comments/ID", "users/ID",
-                 "folders/ID/items", "folders/trash/items", "users/me"]
+                 "folders/ID/items", "folders/trash/items", "users/me", "folders/ID/collaborations", "/files/ID/versions"]
     });
 
     setOauth2Tokens();
