@@ -54,14 +54,6 @@ $(document).ready(function () {
         $("#access").text(getParameterByName("access_token")).attr("data-refresh", getParameterByName("refresh_token"));
     }
 
-    function redirectToBoxIfNoAuth() {
-        "use strict";
-
-        if (getParameterByName("access_token") === "") {
-            window.location.replace("https://api.box.com/oauth2/authorize?response_type=code&client_id=hkwgxjpczwuakujrqcz4wh5e9kgre63i");
-        }
-    }
-
     function makeApiCall() {
         "use strict";
 
@@ -103,7 +95,6 @@ $(document).ready(function () {
                  "folders/ID/items", "folders/trash/items", "users/me"]
     });
 
-    redirectToBoxIfNoAuth();
     setOauth2Tokens();
 
     $("#api-call").submit(function (e) {

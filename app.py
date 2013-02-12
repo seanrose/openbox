@@ -6,10 +6,16 @@ app = Flask(__name__)
 
 CLIENT_ID = os.environ.get('CLIENT_ID')
 CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
+OAUTH_URL = 'https://api.box.com/oauth2'
 
 
 @app.route('/')
 def openbox():
+    if not request.args.get('access_token'):
+        return redirect(
+            '{}/authorize?response_type=code&client_id={}'.format(OAUTH_URL,
+                                                                  CLIENT_ID)
+        )
     return render_template('openbox.html')
 
 
@@ -27,7 +33,7 @@ def box_auth():
         'client_secret': CLIENT_SECRET
     }
 
-    resp = requests.post('https://api.box.com/oauth2/token', data=data)
+    resp = requests.post('{}/token'.format(OAUTH_URL), data=data)
 
     resp_json = resp.json()
 
