@@ -15,7 +15,7 @@ def openbox():
 
 @app.route('/box_auth')
 def box_auth():
-    auth_code = request.form.get('code')
+    auth_code = request.args.get('code')
 
     if not auth_code:
         return jsonify({'Ned Stark': 'Winter is Coming'}), 400
