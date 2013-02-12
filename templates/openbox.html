@@ -57,7 +57,7 @@ $(document).ready(function () {
     function makeApiCall() {
         "use strict";
 
-        $("#submit").button('loading');
+        $("#submit").button("loading");
 
         var formElements = readFormValuesIntoAssArray();
         var boxApiUrl = "https://api.box.com/2.0/";
@@ -74,7 +74,7 @@ $(document).ready(function () {
             statusCode: {
                 401: function() {
                     $("#response").text("Unauthorized");
-                    $("#http-cat").attr("src", "http://httpcats.herokuapp.com/" + "401  ");
+                    $("#http-cat").attr("src", "https://httpcats.herokuapp.com/" + "401  ");
                 }
             },
             complete: function (data) {
@@ -91,7 +91,7 @@ $(document).ready(function () {
 
     $("#url").typeahead({
         source: ["folders", "files", "collaborations", "discussions", "comments", "events", "users", "search", "shared_items",
-                 "folders/ID", "files/ID", "collaborations/ID", "discussions/ID", "comments/ID", "events", "users/ID",
+                 "folders/ID", "files/ID", "collaborations/ID", "discussions/ID", "comments/ID", "users/ID",
                  "folders/ID/items", "folders/trash/items", "users/me"]
     });
 
