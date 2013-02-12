@@ -51,8 +51,7 @@ $(document).ready(function () {
     function setOauth2Tokens() {
         "use strict";
 
-        $("#access").text(getParameterByName("access_token"));
-        $("#refresh").text(getParameterByName("refresh_token"));
+        $("#access").text(getParameterByName("access_token")).attr("data-refresh", getParameterByName("refresh_token"));
     }
 
     function redirectToBoxIfNoAuth() {
@@ -178,9 +177,7 @@ $.fn.topLink = function (settings) {
         <a class="brand" href="#">Open Box</a>
         <ul class="nav">
             <li><a href="#">Access Token:</a></li>
-            <li><a id="access" href="#"></a></li>
-            <li><a href="#">Refresh Token:</a></li>
-            <li><a id="refresh" href="#"></a></li>
+            <li><a data-refresh="" id="access" href="#"></a></li>
         </ul>
       </div>
     </div>
