@@ -7,7 +7,6 @@
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap-responsive.min.css') }}">
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.min.css') }}">
 <link href="{{ url_for('static', filename='prettify.css') }}" type="text/css" rel="stylesheet" />
-<link href="{{ url_for('static', filename='codemirror.css') }}" type="text/css" rel="stylesheet" />
 <style media="screen" type="text/css">
 
 #top-link  { display:none; position:fixed; right:14px; bottom:5px; }
@@ -17,8 +16,9 @@
 <script type="text/javascript" src="{{ url_for('static', filename="prettify.js") }}"></script>
 <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 <script src="{{ url_for('static', filename='jquery.scrollTo-1.4.3.1-min.js') }}"></script>
-<script src="{{ url_for('static', filename='codemirror-compressed.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='ZeroClipboard.min.js') }}"></script>
 <script>
+
 
 $(document).ready(function () {
 
@@ -54,11 +54,7 @@ $(document).ready(function () {
 
         var access_token = getParameterByName("access_token");
 
-        if (access_token === "") {
-            return;
-        } else {
-            $("#access").text(access_token).attr("data-refresh", getParameterByName("refresh_token"));
-        }
+        $("#access").text(access_token).attr("data-refresh", getParameterByName("refresh_token"));
     }
 
     function makeApiCall() {
@@ -77,10 +73,27 @@ $(document).ready(function () {
             headers: {
                 "Authorization": "Bearer " + $("#access").text()
             },
-            cache: false
-        }).done (function (data) {
-            alert("something");
+            cache: false,
+            statusCode: {
+                401: function() {
+                    $("#response").text("Unauthorized");
+                    $("#http-cat").attr("src", "https://httpcats.herokuapp.com/" + "401  ");
+                }
+            },
+            complete: function (data) {
+                if (data.responseText !== "") {
+                    var formattedResponseJson = JSON.stringify($.parseJSON(data.responseText), null, '\t');
+                } else {
+                    var formattedResponseJson = "Empty Response";
+                }
+                $("#response").text(formattedResponseJson);
+                $("#submit").button('reset');
+                $("#response_headers").text(data.getAllResponseHeaders());
+                prettyPrint();
+                $("#http-cat").attr("src", "http://httpcats.herokuapp.com/" + data.status);
+            }
         });
+    }
 
 
     $("#url").typeahead({
