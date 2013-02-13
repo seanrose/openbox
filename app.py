@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sslify import SSLify
 
 app = Flask(__name__)
-sslify = SSLify(app)
+# sslify = SSLify(app)
 
 CLIENT_ID = os.environ.get('CLIENT_ID')
 CLIENT_SECRET = os.environ.get('CLIENT_SECRET')

@@ -16,7 +16,6 @@
 <script type="text/javascript" src="{{ url_for('static', filename="prettify.js") }}"></script>
 <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 <script src="{{ url_for('static', filename='jquery.scrollTo-1.4.3.1-min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='ZeroClipboard.min.js') }}"></script>
 <script>
 
 
@@ -73,28 +72,29 @@ $(document).ready(function () {
             headers: {
                 "Authorization": "Bearer " + $("#access").text()
             },
-            cache: false,
-            statusCode: {
-                401: function() {
-                    $("#response").text("Unauthorized");
-                    $("#http-cat").attr("src", "https://httpcats.herokuapp.com/" + "401  ");
-                }
-            },
-            complete: function (data) {
-                if (data.responseText !== "") {
-                    var formattedResponseJson = JSON.stringify($.parseJSON(data.responseText), null, '\t');
-                } else {
-                    var formattedResponseJson = "Empty Response";
-                }
-                $("#response").text(formattedResponseJson);
-                $("#submit").button('reset');
-                $("#response_headers").text(data.getAllResponseHeaders());
-                prettyPrint();
-                $("#http-cat").attr("src", "http://httpcats.herokuapp.com/" + data.status);
-            }
-        });
-    }
+            cache: false
 
+        }).done ( function(data, textStatus, jqXHR) {
+            if (jqXHR.responseText !== "") {
+                var formattedResponseJson = JSON.stringify($.parseJSON(jqXHR.responseText), null, '\t');
+            } else {
+                var formattedResponseJson = "Empty Response";
+            }
+            $("#response").text(formattedResponseJson);
+            $("#response_headers").text(jqXHR.getAllResponseHeaders());
+            prettyPrint();
+            $("#http-cat").attr("src", "http://httpcats.herokuapp.com/" + jqXHR.status);
+
+        }).fail ( function(jqXHR, textStatus, errorThrown) {
+            if (errorThrown === "") {
+                alert("GOT YA !");
+            }
+
+        }).always ( function() {
+            $("#submit").button('reset');
+        });
+
+    }
 
     $("#url").typeahead({
         source: ["folders", "files", "collaborations", "discussions", "comments", "events", "users", "search", "shared_items",
