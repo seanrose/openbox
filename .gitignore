@@ -39,3 +39,4 @@ venv
 .env
 
 settings.py
+static/.DS_Store
