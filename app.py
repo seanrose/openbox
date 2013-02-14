@@ -1,7 +1,7 @@
 import os
 import requests
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from flask_sslify import SSLify
+# from flask_sslify import SSLify
 
 app = Flask(__name__)
 # sslify = SSLify(app)
