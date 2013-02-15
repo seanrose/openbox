@@ -37,6 +37,23 @@ $(document).ready(function() {
         $("#access").text(access_token).attr("data-refresh", getParameterByName("refresh_token"));
     }
 
+    function currentAceValue() {
+        var editor = ace.edit("json_ace");
+        return editor.getValue();
+    }
+
+    function readFileData() {
+        var formData = new FormData();
+
+        other_params = currentAceValue();
+
+        $.each($.parseJSON(other_params), function(key, value) {
+            formData.append(key, value);
+        });
+
+        return formData;
+    }
+
     function makeApiCall() {
         "use strict";
 
@@ -44,8 +61,7 @@ $(document).ready(function() {
 
         var formElements = readFormValuesIntoAssArray();
         var boxApiUrl = "https://api.box.com/2.0/";
-        var editor = ace.edit("json_ace");
-        var body = editor.getValue();
+        var body = currentAceValue();
 
         $.ajax({
             type: formElements.method,
@@ -80,20 +96,20 @@ $(document).ready(function() {
 
     }
 
-    function setupAceEditor(elemToReplace) {
-        var editor = ace.edit("json_ace");
-        $(elemToReplace).css("visibility", "hidden");
-        editor.renderer.setShowGutter(false);
-        editor.setPrintMarginColumn(false);
-        editor.getSession().setMode("ace/mode/json");
-    }
-
     $("#url").typeahead({
         source: ["folders", "files", "collaborations", "discussions", "comments", "events", "users", "search", "shared_items", "folders/ID", "files/ID", "collaborations/ID", "discussions/ID", "comments/ID", "users/ID", "folders/ID/items", "folders/trash/items", "users/me", "folders/ID/collaborations", "/files/ID/versions"]
     });
 
     setupAceEditor("#json_body");
     setOauth2Tokens();
+    var editor = ace.edit("json_ace");
+    $(elemToReplace).css("visibility", "hidden");
+    editor.renderer.setShowGutter(false);
+    editor.setPrintMarginColumn(false);
+    editor.setShowPrintMargin(false);
+    editor.getSession().setMode("ace/mode/json");
+    editor.setHighlightActiveLine(false);
+    editor.setValue("");
 
     $("#api-call").submit(function(e) {
         e.preventDefault();
